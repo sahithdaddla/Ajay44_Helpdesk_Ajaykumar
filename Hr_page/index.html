@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATS Help Desk - HR Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --accent: #4895ef;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #4cc9f0;
+            --warning: #f8961e;
+            --danger: #f72585;
+            --gray: #6c757d;
+            --open: #4cc9f0;
+            --in-progress: #f8961e;
+            --resolved: #007e1f;
+            --closed: #6c757d;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: white;
+            min-height: 100vh;
+            color: var(--dark);
+        }
+
+        .banner {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .banner h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            animation: slideInDown 0.8s ease;
+        }
+
+        .banner p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            animation: slideInUp 0.8s ease;
+        }
+
+        .banner::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0,0 L100,0 L100,100 Q50,80 0,100 Z" fill="rgba(255,255,255,0.1)"/></svg>');
+            background-size: 100% 100%;
+            opacity: 0.2;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: transform 0.3s ease;
+            animation: fadeIn 0.8s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .stat-icon.open {
+            background: linear-gradient(135deg, var(--open), #3aa8c1);
+        }
+
+        .stat-icon.in-progress {
+            background: linear-gradient(135deg, var(--in-progress), #d87e16);
+        }
+
+        .stat-icon.resolved {
+            background: linear-gradient(135deg, var(--resolved), #3a9e4d);
+        }
+
+        .stat-icon.closed {
+            background: linear-gradient(135deg, var(--closed), #5a6268);
+        }
+
+        .stat-info h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-info p {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: fadeIn 0.8s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .card h2 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .filter-control {
+            width: 100%;
+            padding: 0.5rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        .tickets-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .tickets-table th, .tickets-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .tickets-table th {
+            background: rgba(67, 97, 238, 0.05);
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .tickets-table tr:hover {
+            background: rgba(67, 97, 238, 0.03);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-open {
+            background: rgba(76, 201, 240, 0.1);
+            color: var(--open);
+        }
+
+        .status-in-progress {
+            background: rgba(248, 150, 30, 0.1);
+            color: var(--in-progress);
+        }
+
+        .status-resolved {
+            background: rgba(74, 214, 109, 0.1);
+            color: var(--resolved);
+        }
+
+        .status-closed {
+            background: rgba(108, 117, 125, 0.1);
+            color: var(--closed);
+        }
+
+        .priority-high {
+            color: var(--danger);
+            font-weight: 600;
+        }
+
+        .priority-critical {
+            color: var(--danger);
+            font-weight: 600;
+            animation: pulse 1.5s infinite;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 0 0.25rem;
+            transition: transform 0.2s ease;
+        }
+
+        .action-btn:hover {
+            transform: scale(1.2);
+        }
+
+        .btn-view {
+            color: var(--accent);
+        }
+
+        .btn-edit {
+            color: var(--warning);
+        }
+
+        .btn-resolve {
+            color: var(--success);
+        }
+
+        .btn-close {
+            color: var(--gray);
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 2rem;
+            transform: translateY(-20px);
+            transition: all 0.3s ease;
+        }
+
+        .modal.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .modal-header h3 {
+            color: var(--primary);
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray);
+        }
+
+        .ticket-details {
+            margin-bottom: 1.5rem;
+        }
+
+        .ticket-details p {
+            margin-bottom: 0.75rem;
+            display: flex;
+        }
+
+        .ticket-details strong {
+            min-width: 120px;
+            display: inline-block;
+            color: var(--dark);
+        }
+
+        .ticket-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #3aa8c1;
+            transform: translateY(-2px);
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #d87e16;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #d3165e;
+            transform: translateY(-2px);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideInDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .banner h1 {
+                font-size: 2rem;
+            }
+            
+            .card {
+                padding: 1.5rem;
+            }
+            
+            .tickets-table {
+                display: block;
+                overflow-x: auto;
+            }
+            
+            .filters {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .filter-group {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="banner">
+        <h1><i class="fas fa-headset"></i> ATS Help Desk - HR Dashboard</h1>
+        <p>Manage and resolve employee tickets efficiently</p>
+    </div>
+
+    <div class="container">
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-icon open">
+                    <i class="fas fa-folder-open"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="openCount">0</h3>
+                    <p>Open Tickets</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon in-progress">
+                    <i class="fas fa-tasks"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="inProgressCount">0</h3>
+                    <p>In Progress</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon resolved">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="resolvedCount">0</h3>
+                    <p>Resolved</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon closed">
+                    <i class="fas fa-archive"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="closedCount">0</h3>
+                    <p>Closed</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2><i class="fas fa-filter"></i> Filters</h2>
+            
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="filterStatus">Status</label>
+                    <select id="filterStatus" class="filter-control">
+                        <option value="">All Statuses</option>
+                        <option value="Open">Open</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Resolved">Resolved</option>
+                        <option value="Closed">Closed</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="filterPriority">Priority</label>
+                    <select id="filterPriority" class="filter-control">
+                        <option value="">All Priorities</option>
+                        <option value="Low">Low</option>
+                        <option value="Medium">Medium</option>
+                        <option value="High">High</option>
+                        <option value="Critical">Critical</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="filterDepartment">Department</label>
+                    <select id="filterDepartment" class="filter-control">
+                        <option value="">All Departments</option>
+                        <option value="IT">IT</option>
+                        <option value="HR">Human Resources</option>
+                        <option value="Finance">Finance</option>
+                        <option value="Operations">Operations</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="filterIssueType">Issue Type</label>
+                    <select id="filterIssueType" class="filter-control">
+                        <option value="">All Issue Types</option>
+                        <option value="Technical">Technical Issue</option>
+                        <option value="Hardware">Hardware Problem</option>
+                        <option value="Software">Software Problem</option>
+                        <option value="Access">Access Request</option>
+                        <option value="Account">Account Issue</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2><i class="fas fa-ticket-alt"></i> Tickets</h2>
+            
+            <table class="tickets-table">
+                <thead>
+                    <tr>
+                        <th>Ticket ID</th>
+                        <th>Employee</th>
+                        <th>Department</th>
+                        <th>Issue Type</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="ticketsBody">
+                    <!-- Tickets will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Ticket Detail Modal -->
+    <div id="ticketModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-ticket-alt"></i> <span id="modalTicketId"></span></h3>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            
+            <div class="ticket-details">
+                <p><strong>Employee ID:</strong> <span id="modalEmpId"></span></p>
+                <p><strong>Employee Name:</strong> <span id="modalEmpName"></span></p>
+                <p><strong>Email:</strong> <span id="modalEmpEmail"></span></p>
+                <p><strong>Department:</strong> <span id="modalDepartment"></span></p>
+                <p><strong>Priority:</strong> <span id="modalPriority"></span></p>
+                <p><strong>Issue Type:</strong> <span id="modalIssueType"></span></p>
+                <p><strong>Status:</strong> <span id="modalStatus"></span></p>
+                <p><strong>Created:</strong> <span id="modalCreated"></span></p>
+                <p><strong>Description:</strong></p>
+                <div style="background: #f8f9fa; padding: 1rem; border-radius: 6px; margin-top: 0.5rem;">
+                    <span id="modalDescription"></span>
+                </div>
+            </div>
+            
+            <div class="ticket-actions">
+                <button class="btn btn-warning" onclick="updateStatus('In Progress')">
+                    <i class="fas fa-tasks"></i> In Progress
+                </button>
+                <button class="btn btn-success" onclick="updateStatus('Resolved')">
+                    <i class="fas fa-check-circle"></i> Resolved
+                </button>
+                <button class="btn btn-danger" onclick="updateStatus('Closed')">
+                    <i class="fas fa-archive"></i> Close
+                </button>
+                <button class="btn btn-primary" onclick="addComment()" style="margin-left: auto;">
+                    <i class="fas fa-comment"></i> Add Comment
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variable to track current ticket in modal
+        let currentTicketId = null;
+        
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                await updateStats();
+                await renderTickets();
+                
+                // Add event listeners to filters
+                document.getElementById('filterStatus').addEventListener('change', renderTickets);
+                document.getElementById('filterPriority').addEventListener('change', renderTickets);
+                document.getElementById('filterDepartment').addEventListener('change', renderTickets);
+                document.getElementById('filterIssueType').addEventListener('change', renderTickets);
+            } catch (error) {
+                console.error('Initialization error:', error);
+                alert('Error initializing page');
+            }
+        });
+        
+        // Update statistics (MODIFIED)
+        async function updateStats() {
+            try {
+                const response = await fetch('http://localhost:5000/api/tickets/stats');
+                if (!response.ok) {
+                    throw new Error(`Server responded with ${response.status}`);
+                }
+                
+                const stats = await response.json();
+                console.log('Received stats:', stats); // Debug: Log the API response
+                
+                // Update counts safely
+                const updateCount = (id, value) => {
+                    const el = document.getElementById(id);
+                    if (el) el.textContent = value || 0;
+                };
+                
+                // Update counts with multiple possible keys
+                updateCount('openCount', stats.Open || stats.open || 0);
+                updateCount('inProgressCount', stats['In Progress'] || stats.inProgress || stats.in_progress || 0);
+                updateCount('resolvedCount', stats.Resolved || stats.resolved || 0);
+                updateCount('closedCount', stats.Closed || stats.closed || 0);
+            } catch (error) {
+                console.error('Error fetching stats:', error);
+                // Set defaults when stats fail to load
+                const updateCount = (id, value) => {
+                    const el = document.getElementById(id);
+                    if (el) el.textContent = value || 0;
+                };
+                updateCount('openCount', 0);
+                updateCount('inProgressCount', 0);
+                updateCount('resolvedCount', 0);
+                updateCount('closedCount', 0);
+            }
+        }
+        
+        // Render tickets based on filters
+        async function renderTickets() {
+            try {
+                // Get filter values safely
+                const statusFilter = document.getElementById('filterStatus')?.value || '';
+                const priorityFilter = document.getElementById('filterPriority')?.value || '';
+                const departmentFilter = document.getElementById('filterDepartment')?.value || '';
+                const issueTypeFilter = document.getElementById('filterIssueType')?.value || '';
+                
+                // Build query string
+                const params = new URLSearchParams();
+                if (statusFilter) params.append('status', statusFilter);
+                if (priorityFilter) params.append('priority', priorityFilter);
+                if (departmentFilter) params.append('department', departmentFilter);
+                if (issueTypeFilter) params.append('issue_type', issueTypeFilter);
+                
+                const response = await fetch(`http://localhost:5000/api/tickets?${params.toString()}`);
+                if (!response.ok) throw new Error('Failed to fetch tickets');
+                
+                const tickets = await response.json();
+                const ticketsBody = document.getElementById('ticketsBody');
+                if (!ticketsBody) {
+                    console.error('Tickets table body not found');
+                    return;
+                }
+                
+                ticketsBody.innerHTML = '';
+                
+                if (tickets.length === 0) {
+                    ticketsBody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 2rem;">No tickets found matching your filters</td></tr>';
+                    return;
+                }
+                
+                tickets.forEach(ticket => {
+                    const row = document.createElement('tr');
+                    
+                    // Format date
+                    const createdDate = new Date(ticket.created_at || ticket.createdAt || Date.now());
+                    const formattedDate = createdDate.toLocaleDateString() + ' ' + createdDate.toLocaleTimeString();
+                    
+                    // Priority class
+                    let priorityClass = '';
+                    if (ticket.priority === 'High') priorityClass = 'priority-high';
+                    if (ticket.priority === 'Critical') priorityClass = 'priority-critical';
+                    
+                    // Status badge
+                    let statusBadge = '';
+                    if (ticket.status === 'Open') statusBadge = 'status-open';
+                    if (ticket.status === 'In Progress') statusBadge = 'status-in-progress';
+                    if (ticket.status === 'Resolved') statusBadge = 'status-resolved';
+                    if (ticket.status === 'Closed') statusBadge = 'status-closed';
+                    
+                    row.innerHTML = `
+                        <td>${ticket.ticket_id || ticket.id}</td>
+                        <td>${ticket.emp_name || ticket.employeeName}<br><small>${ticket.emp_id || ticket.employeeId}</small></td>
+                        <td>${ticket.department}</td>
+                        <td>${ticket.issue_type || ticket.issueType}</td>
+                        <td class="${priorityClass}">${ticket.priority}</td>
+                        <td><span class="status-badge ${statusBadge}">${ticket.status}</span></td>
+                        <td>${formattedDate}</td>
+                        <td>
+                            <button class="action-btn btn-view" onclick="viewTicket('${ticket.ticket_id || ticket.id}')" title="View">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="action-btn btn-resolve" onclick="resolveTicket('${ticket.ticket_id || ticket.id}')" title="Resolve">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            <button class="action-btn btn-close" onclick="closeTicket('${ticket.ticket_id || ticket.id}')" title="Close">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </td>
+                    `;
+                    
+                    ticketsBody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error fetching tickets:', error);
+                const ticketsBody = document.getElementById('ticketsBody');
+                if (ticketsBody) {
+                    ticketsBody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 2rem; color: var(--danger);">Error loading tickets</td></tr>';
+                }
+            }
+        }
+        
+        // View ticket details
+        async function viewTicket(ticketId) {
+            try {
+                const response = await fetch(`http://localhost:5000/api/tickets/${ticketId}`);
+                if (!response.ok) throw new Error('Failed to fetch ticket');
+                
+                const ticket = await response.json();
+                currentTicketId = ticket.ticket_id || ticket.id;
+                
+                // Format date
+                const createdDate = new Date(ticket.created_at || ticket.createdAt);
+                const formattedDate = createdDate.toLocaleDateString() + ' ' + createdDate.toLocaleTimeString();
+                
+                // Set modal content safely
+                const setModalContent = (id, value) => {
+                    const el = document.getElementById(id);
+                    if (el) el.textContent = value || 'N/A';
+                };
+                
+                setModalContent('modalTicketId', ticket.ticket_id || ticket.id);
+                setModalContent('modalEmpId', ticket.emp_id || ticket.employeeId);
+                setModalContent('modalEmpName', ticket.emp_name || ticket.employeeName);
+                setModalContent('modalEmpEmail', ticket.emp_email || ticket.employeeEmail);
+                setModalContent('modalDepartment', ticket.department);
+                setModalContent('modalPriority', ticket.priority);
+                setModalContent('modalIssueType', ticket.issue_type || ticket.issueType);
+                setModalContent('modalStatus', ticket.status);
+                setModalContent('modalCreated', formattedDate);
+                setModalContent('modalDescription', ticket.description);
+                
+                document.getElementById('ticketModal').classList.add('active');
+            } catch (error) {
+                console.error('Error viewing ticket:', error);
+                alert('Error loading ticket details');
+            }
+        }
+        
+        // Resolve ticket
+        async function resolveTicket(ticketId) {
+            if (confirm('Mark this ticket as resolved?')) {
+                try {
+                    const response = await fetch(`http://localhost:5000/api/tickets/${ticketId}/status`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ status: 'Resolved' })
+                    });
+                    
+                    if (!response.ok) throw new Error('Failed to update ticket');
+                    
+                    await Promise.all([updateStats(), renderTickets()]);
+                    alert('Ticket marked as resolved');
+                } catch (error) {
+                    console.error('Error resolving ticket:', error);
+                    alert('Error resolving ticket');
+                }
+            }
+        }
+        
+        // Close ticket
+        async function closeTicket(ticketId) {
+            if (confirm('Close this ticket?')) {
+                try {
+                    const response = await fetch(`http://localhost:5000/api/tickets/${ticketId}/status`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ status: 'Closed' })
+                    });
+                    
+                    if (!response.ok) throw new Error('Failed to update ticket');
+                    
+                    await Promise.all([updateStats(), renderTickets()]);
+                    alert('Ticket closed');
+                } catch (error) {
+                    console.error('Error closing ticket:', error);
+                    alert('Error closing ticket');
+                }
+            }
+        }
+        
+        // Update ticket status from modal
+        async function updateStatus(newStatus) {
+            if (!currentTicketId) return;
+            
+            try {
+                const response = await fetch(`http://localhost:5000/api/tickets/${currentTicketId}/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ status: newStatus })
+                });
+                
+                if (!response.ok) throw new Error('Failed to update ticket');
+                
+                closeModal();
+                await Promise.all([updateStats(), renderTickets()]);
+                alert(`Ticket status updated to ${newStatus}`);
+            } catch (error) {
+                console.error('Error updating ticket status:', error);
+                alert('Error updating ticket status');
+            }
+        }
+        
+        // Add comment to ticket
+        async function addComment() {
+            if (!currentTicketId) return;
+            
+            const comment = prompt('Enter your comment:');
+            if (!comment) return;
+            
+            try {
+                const response = await fetch(`http://localhost:5000/api/tickets/${currentTicketId}/comments`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        comment: comment,
+                        author: 'HR Representative'
+                    })
+                });
+                
+                if (!response.ok) throw new Error('Failed to add comment');
+                
+                alert('Comment added successfully');
+            } catch (error) {
+                console.error('Error adding comment:', error);
+                alert('Error adding comment');
+            }
+        }
+        
+        // Close modal
+        function closeModal() {
+            const modal = document.getElementById('ticketModal');
+            if (modal) modal.classList.remove('active');
+            currentTicketId = null;
+        }
+    </script>
+</body>
+</html>
