@@ -45,94 +45,91 @@
             overflow: hidden;
         }
 
-        .banner h1 {
+         header {
+            position: relative;
+            text-align: center;
+            height: 140px;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: #fff;
+            border-radius: 15px;
+            overflow: hidden;
+            display: flex;
+            width: 100%;
+           
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            margin: 0;
             font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-            animation: slideInDown 0.8s ease;
+            color: white;
+            font-weight: 700;
+            letter-spacing: 1px;
+            position: relative;
+            z-index: 2;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
 
-        .banner p {
+        header p {
+            font-weight: 300;
             font-size: 1.1rem;
+            margin-top: 10px;
             opacity: 0.9;
-            animation: slideInUp 0.8s ease;
         }
 
-        .banner::after {
-            content: '';
+        @keyframes moveCircles {
+            0% { transform: translateY(0) translateX(0); }
+            50% { transform: translateY(-50%) translateX(-50%); }
+            100% { transform: translateY(0) translateX(0); }
+        }
+
+        .banner-background {
             position: absolute;
             top: 0;
             left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0,0 L100,0 L100,100 Q50,80 0,100 Z" fill="rgba(255,255,255,0.1)"/></svg>');
-            background-size: 100% 100%;
-            opacity: 0.2;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .circle {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: moveCircles 15s infinite linear;
+        }
+
+        .circle:nth-child(1) {
+            top: 10%;
+            left: 20%;
+            animation-duration: 15s;
+        }
+
+        .circle:nth-child(2) {
+            top: 50%;
+            left: 70%;
+            animation-duration: 20s;
+            animation-direction: reverse;
+        }
+
+        .circle:nth-child(3) {
+            top: 80%;
+            left: 40%;
+            animation-duration: 25s;
         }
 
         .container {
             max-width: 1400px;
+
             margin: 2rem auto;
             padding: 0 1rem;
-        }
-
-        .stats-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .stat-card {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-            padding: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            transition: transform 0.3s ease;
-            animation: fadeIn 0.8s ease;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .stat-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            color: white;
-        }
-
-        .stat-icon.open {
-            background: linear-gradient(135deg, var(--open), #3aa8c1);
-        }
-
-        .stat-icon.in-progress {
-            background: linear-gradient(135deg, var(--in-progress), #d87e16);
-        }
-
-        .stat-icon.resolved {
-            background: linear-gradient(135deg, var(--resolved), #3a9e4d);
-        }
-
-        .stat-icon.closed {
-            background: linear-gradient(135deg, var(--closed), #5a6268);
-        }
-
-        .stat-info h3 {
-            font-size: 1.5rem;
-            margin-bottom: 0.25rem;
-        }
-
-        .stat-info p {
-            color: var(--gray);
-            font-size: 0.9rem;
         }
 
         .card {
@@ -476,54 +473,17 @@
     </style>
 </head>
 <body>
-    <div class="banner">
+    <header>
+        <div class="banner-background">
+            <div class="circle"></div>
+            <div class="circle"></div>
+            <div class="circle"></div>
+        </div>
         <h1><i class="fas fa-headset"></i> ATS Help Desk - HR Dashboard</h1>
         <p>Manage and resolve employee tickets efficiently</p>
-    </div>
-
+    </header>
+    
     <div class="container">
-        <div class="stats-container">
-            <div class="stat-card">
-                <div class="stat-icon open">
-                    <i class="fas fa-folder-open"></i>
-                </div>
-                <div class="stat-info">
-                    <h3 id="openCount">0</h3>
-                    <p>Open Tickets</p>
-                </div>
-            </div>
-            
-            <div class="stat-card">
-                <div class="stat-icon in-progress">
-                    <i class="fas fa-tasks"></i>
-                </div>
-                <div class="stat-info">
-                    <h3 id="inProgressCount">0</h3>
-                    <p>In Progress</p>
-                </div>
-            </div>
-            
-            <div class="stat-card">
-                <div class="stat-icon resolved">
-                    <i class="fas fa-check-circle"></i>
-                </div>
-                <div class="stat-info">
-                    <h3 id="resolvedCount">0</h3>
-                    <p>Resolved</p>
-                </div>
-            </div>
-            
-            <div class="stat-card">
-                <div class="stat-icon closed">
-                    <i class="fas fa-archive"></i>
-                </div>
-                <div class="stat-info">
-                    <h3 id="closedCount">0</h3>
-                    <p>Closed</p>
-                </div>
-            </div>
-        </div>
-        
         <div class="card">
             <h2><i class="fas fa-filter"></i> Filters</h2>
             
@@ -648,7 +608,6 @@
         // Initialize the page
         document.addEventListener('DOMContentLoaded', async function() {
             try {
-                await updateStats();
                 await renderTickets();
                 
                 // Add event listeners to filters
@@ -661,42 +620,6 @@
                 alert('Error initializing page');
             }
         });
-        
-        // Update statistics (MODIFIED)
-        async function updateStats() {
-            try {
-                const response = await fetch('http://localhost:5000/api/tickets/stats');
-                if (!response.ok) {
-                    throw new Error(`Server responded with ${response.status}`);
-                }
-                
-                const stats = await response.json();
-                console.log('Received stats:', stats); // Debug: Log the API response
-                
-                // Update counts safely
-                const updateCount = (id, value) => {
-                    const el = document.getElementById(id);
-                    if (el) el.textContent = value || 0;
-                };
-                
-                // Update counts with multiple possible keys
-                updateCount('openCount', stats.Open || stats.open || 0);
-                updateCount('inProgressCount', stats['In Progress'] || stats.inProgress || stats.in_progress || 0);
-                updateCount('resolvedCount', stats.Resolved || stats.resolved || 0);
-                updateCount('closedCount', stats.Closed || stats.closed || 0);
-            } catch (error) {
-                console.error('Error fetching stats:', error);
-                // Set defaults when stats fail to load
-                const updateCount = (id, value) => {
-                    const el = document.getElementById(id);
-                    if (el) el.textContent = value || 0;
-                };
-                updateCount('openCount', 0);
-                updateCount('inProgressCount', 0);
-                updateCount('resolvedCount', 0);
-                updateCount('closedCount', 0);
-            }
-        }
         
         // Render tickets based on filters
         async function renderTickets() {
@@ -833,7 +756,7 @@
                     
                     if (!response.ok) throw new Error('Failed to update ticket');
                     
-                    await Promise.all([updateStats(), renderTickets()]);
+                    await renderTickets();
                     alert('Ticket marked as resolved');
                 } catch (error) {
                     console.error('Error resolving ticket:', error);
@@ -856,7 +779,7 @@
                     
                     if (!response.ok) throw new Error('Failed to update ticket');
                     
-                    await Promise.all([updateStats(), renderTickets()]);
+                    await renderTickets();
                     alert('Ticket closed');
                 } catch (error) {
                     console.error('Error closing ticket:', error);
@@ -881,7 +804,7 @@
                 if (!response.ok) throw new Error('Failed to update ticket');
                 
                 closeModal();
-                await Promise.all([updateStats(), renderTickets()]);
+                await renderTickets();
                 alert(`Ticket status updated to ${newStatus}`);
             } catch (error) {
                 console.error('Error updating ticket status:', error);
