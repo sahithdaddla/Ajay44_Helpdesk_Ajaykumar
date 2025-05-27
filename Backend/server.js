@@ -5,23 +5,23 @@ const cors = require('cors');
 const { Pool } = require('pg');
 
 const app = express();
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 3025;
 
 // PostgreSQL connection
 const pool = new Pool({
     user: process.env.DB_USER || 'postgres',
-    host: process.env.DB_HOST || 'localhost',
+    host: process.env.DB_HOST || 'postgres',
     database: process.env.DB_NAME || 'new_employee_db',
-    password: process.env.DB_PASSWORD || 'Password@12345',
+    password: process.env.DB_PASSWORD || 'admin123',
     port: process.env.DB_PORT || 5432,
 });
 
 // Middleware
 app.use(cors({
     origin: [
-        'http://localhost:3000', 
-        'http://127.0.0.1:3000',
-        'http://localhost:5500',
+        'http://54.166.206.245:3025', 
+        'http://127.0.0.1:3025',
+        'http://54.166.206.245:3025',
         'http://127.0.0.1:5500'
     ]
 }));
