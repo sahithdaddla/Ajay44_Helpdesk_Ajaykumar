@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:13
+    container_name: helpdesk_postgres
+    environment:
+      POSTGRES_DB: new_employee_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin123
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5457:5432"
+
+  backend:
+    build: ./Backend
+    container_name: helpdesk_backend
+    ports:
+      - "3025:3025"
+    environment:
+      - DB_USER=postgres
+      - DB_PASSWORD=admin123
+      - DB_NAME=new_employee_db
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - PORT=3025
+    depends_on:
+      - postgres
+
+  frontend:
+    build: ./Frontend
+    container_name: helpdesk_frontend
+    ports:
+      - "8042:80"
+
+  hr_page:
+    build: ./Hr_page
+    container_name: helpdesk_hr_page
+    ports:
+      - "8043:80"
+
+volumes:
+  db_data:
+

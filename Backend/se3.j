@@ -1,4 +1,3 @@
-// server.js
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -19,10 +18,11 @@ const pool = new Pool({
 // Middleware
 app.use(cors({
     origin: [
-	'http://54.166.206.245:8042',   
-        'http://54.166.206.245:8041', 
+        'http://54.166.206.245:8042',
         'http://127.0.0.1:3025',
-        'http://127.0.0.1:5500'
+        'http://54.166.206.245:3025',
+        'http://127.0.0.1:5500',
+        'http://127.0.0.1:5503' // Added to allow requests from port 5503
     ]
 }));
 app.use(express.json());
@@ -30,6 +30,7 @@ app.use(express.json());
 // Initialize database tables
 const initializeDatabase = async () => {
     try {
+        // Create tickets table
         await pool.query(`
             CREATE TABLE IF NOT EXISTS tickets (
                 id SERIAL PRIMARY KEY,
@@ -47,6 +48,7 @@ const initializeDatabase = async () => {
             );
         `);
 
+        // Create comments table
         await pool.query(`
             CREATE TABLE IF NOT EXISTS comments (
                 id SERIAL PRIMARY KEY,
@@ -60,23 +62,28 @@ const initializeDatabase = async () => {
         console.log('Database tables initialized successfully');
     } catch (err) {
         console.error('Error initializing database:', err);
-        process.exit(1);
+        process.exit(1); // Exit if table creation fails
     }
 };
 
 // Routes
+
+// Create a new ticket
 app.post('/api/tickets', async (req, res) => {
     try {
         const { emp_id, emp_name, emp_email, department, priority, issue_type, description } = req.body;
 
+        // Validate emp_id format (ATS0 followed by 3 digits, not all zeros)
         if (!/^ATS0[0-9]{3}$/.test(emp_id) || emp_id === 'ATS0000') {
             return res.status(400).json({ error: 'Invalid Employee ID format' });
         }
 
+        // Validate email domain
         if (!/@(gmail\.com|outlook\.com|[\w-]+\.in|[\w-]+\.org\.co)$/.test(emp_email)) {
             return res.status(400).json({ error: 'Invalid email domain' });
         }
 
+        // Generate unique ticket_id
         const ticket_id = 'TKT-' + Math.floor(100000 + Math.random() * 900000);
 
         const result = await pool.query(
@@ -91,6 +98,7 @@ app.post('/api/tickets', async (req, res) => {
     }
 });
 
+// Get tickets - filtered by emp_id, status, priority, department, or issue_type if provided
 app.get('/api/tickets', async (req, res) => {
     try {
         const { emp_id, status, priority, department, issue_type } = req.query;
@@ -103,18 +111,22 @@ app.get('/api/tickets', async (req, res) => {
             params.push(emp_id);
             conditions.push(`emp_id = $${params.length}`);
         }
+
         if (status) {
             params.push(status);
             conditions.push(`status = $${params.length}`);
         }
+
         if (priority) {
             params.push(priority);
             conditions.push(`priority = $${params.length}`);
         }
+
         if (department) {
             params.push(department);
             conditions.push(`department = $${params.length}`);
         }
+
         if (issue_type) {
             params.push(issue_type);
             conditions.push(`issue_type = $${params.length}`);
@@ -134,6 +146,7 @@ app.get('/api/tickets', async (req, res) => {
     }
 });
 
+// Get ticket by ID
 app.get('/api/tickets/:id', async (req, res) => {
     try {
         const { id } = req.params;
@@ -150,6 +163,7 @@ app.get('/api/tickets/:id', async (req, res) => {
     }
 });
 
+// Update ticket status
 app.put('/api/tickets/:id/status', async (req, res) => {
     try {
         const { id } = req.params;
@@ -175,11 +189,13 @@ app.put('/api/tickets/:id/status', async (req, res) => {
     }
 });
 
+// Add comment to ticket
 app.post('/api/tickets/:id/comments', async (req, res) => {
     try {
         const { id } = req.params;
         const { comment, author } = req.body;
 
+        // Verify ticket exists
         const ticketCheck = await pool.query('SELECT 1 FROM tickets WHERE ticket_id = $1', [id]);
         if (ticketCheck.rows.length === 0) {
             return res.status(404).json({ error: 'Ticket not found' });
@@ -197,6 +213,7 @@ app.post('/api/tickets/:id/comments', async (req, res) => {
     }
 });
 
+// Get comments for a ticket
 app.get('/api/tickets/:id/comments', async (req, res) => {
     try {
         const { id } = req.params;
@@ -212,6 +229,7 @@ app.get('/api/tickets/:id/comments', async (req, res) => {
     }
 });
 
+// Get ticket statistics
 app.get('/api/tickets/stats', async (req, res) => {
     try {
         const result = await pool.query(`
@@ -240,11 +258,11 @@ app.get('/api/tickets/stats', async (req, res) => {
     }
 });
 
-// Start server
+// Start server and initialize database
 const startServer = async () => {
     try {
         await initializeDatabase();
-        app.listen(port, '0.0.0.0', () => {
+        app.listen(port, () => {
             console.log(`Server running on port ${port}`);
         });
     } catch (err) {
@@ -254,4 +272,3 @@ const startServer = async () => {
 };
 
 startServer();
-

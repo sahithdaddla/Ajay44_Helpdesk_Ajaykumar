@@ -30,7 +30,7 @@
         }
 
         body {
-           background: white;
+            background: white;
             min-height: 100vh;
             color: var(--dark);
         }
@@ -69,7 +69,7 @@
             opacity: 0.2;
         }
 
-           header {
+        header {
             position: relative;
             text-align: center;
             height: 140px;
@@ -79,7 +79,6 @@
             overflow: hidden;
             display: flex;
             width: 100%;
-           
             align-items: center;
             justify-content: center;
             flex-direction: column;
@@ -188,10 +187,12 @@
             font-weight: 600;
             color: var(--dark);
         }
-        #description{
+
+        #description {
             height: 140px;
             resize: none;
         }
+
         .form-control {
             width: 100%;
             padding: 0.75rem 1rem;
@@ -243,6 +244,11 @@
             transform: translateY(0);
         }
 
+        .form-actions {
+            text-align: center;
+            margin-top: 2rem;
+        }
+
         .ticket-preview {
             margin-top: 2rem;
             padding: 1.5rem;
@@ -272,7 +278,8 @@
             margin-top: 1rem;
         }
 
-        .tickets-table th, .tickets-table td {
+        .tickets-table th,
+        .tickets-table td {
             padding: 1rem;
             text-align: left;
             border-bottom: 1px solid #eee;
@@ -474,26 +481,44 @@
             animation: bounce 1s;
         }
 
+        /* No Data State */
+        .no-data {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .no-data img {
+            width: 100px;
+            height: 100px;
+            opacity: 0.5;
+        }
+
+        .no-data p {
+            font-size: 0.9rem;
+            color: var(--gray);
+            margin-top: 10px;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .banner h1 {
                 font-size: 2rem;
             }
-            
+
             .card {
                 padding: 1.5rem;
             }
-            
+
             .tickets-table {
                 display: block;
                 overflow-x: auto;
             }
-            
+
             .filters {
                 flex-direction: column;
                 gap: 1rem;
             }
-            
+
             .filter-group {
                 min-width: 100%;
             }
@@ -501,7 +526,7 @@
     </style>
 </head>
 <body>
-      <header>
+    <header>
         <div class="banner-background">
             <div class="circle"></div>
             <div class="circle"></div>
@@ -511,18 +536,17 @@
         <p>Submit your queries and issues here. Our team will get back to you shortly.</p>
     </header>
 
-    
     <div class="container">
         <div class="card">
             <h2><i class="fas fa-ticket-alt"></i> Create New Ticket</h2>
-            
+
             <form id="ticketForm">
                 <div class="form-group">
                     <label for="empId">Employee ID</label>
                     <input type="text" id="empId" class="form-control" placeholder="ATS0xxx" pattern="^[ATS]{3}0(?!000)[0-9]{3}$" minlength="7" maxlength="7" required>
                     <div class="invalid-feedback">Please enter a valid Employee ID (ATS0 followed by 3 digits, not all zeros)</div>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="empName">Full Name</label>
                     <input type="text" id="empName" class="form-control" placeholder="Employee Name" 
@@ -531,16 +555,16 @@
                            required minlength="3" maxlength="40">
                     <div class="invalid-feedback">Please enter a valid name (only alphabets and single spaces between words, no leading/trailing spaces)</div>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="empEmail">Email Address</label>
                     <input type="email" id="empEmail" class="form-control" 
                            placeholder="Employee Email" 
-                           pattern="[a-zA-Z0-9._%+-]+@(gmail\.com|outlook\.com|[\w-]+\.in|[\w-]+\.org\.co)$" 
-                           required minlength="3" maxlength="40">
-                    <div class="invalid-feedback">Please enter a valid email (gmail.com, outlook.com, .in or .org.co domains only)</div>
+                           pattern="^[a-zA-Z][a-zA-Z0-9._-]*@(?:gmail\.com|outlook\.com|[\w-]+\.(?:co|in|org))$" 
+                           required minlength="8" maxlength="50">
+                    <div class="invalid-feedback">Email must start with a letter, contain at least 3 alphabets, and have a domain of gmail.com, outlook.com, or *.co/in/org</div>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="department">Department</label>
                     <select id="department" class="form-control" required>
@@ -554,7 +578,7 @@
                     </select>
                     <div class="invalid-feedback">Please select a department</div>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="priority">Priority</label>
                     <select id="priority" class="form-control" required>
@@ -566,7 +590,7 @@
                     </select>
                     <div class="invalid-feedback">Please select a priority level</div>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="issueType">Issue Type</label>
                     <select id="issueType" class="form-control" required>
@@ -580,7 +604,7 @@
                     </select>
                     <div class="invalid-feedback">Please select an issue type</div>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="description">Description</label>
                     <textarea id="description" class="form-control" rows="5" placeholder="Describe your issue in detail..." 
@@ -590,12 +614,14 @@
                               required></textarea>
                     <div class="invalid-feedback">Please provide a valid description (min 10 chars with letters, no leading/trailing spaces, no consecutive spaces)</div>
                 </div>
-                
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-paper-plane"></i> Submit Ticket
-                </button>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i> Submit Ticket
+                    </button>
+                </div>
             </form>
-            
+
             <div id="ticketPreview" class="ticket-preview">
                 <h3><i class="fas fa-eye"></i> Ticket Preview</h3>
                 <p><strong>Ticket ID:</strong> <span id="previewTicketId"></span></p>
@@ -640,7 +666,7 @@
             </table>
         </div>
     </div>
-    
+
     <!-- Success Modal -->
     <div id="successModal" class="modal">
         <div class="modal-content">
@@ -662,7 +688,7 @@
                 <h3><i class="fas fa-ticket-alt"></i> <span id="modalTicketId"></span></h3>
                 <button class="modal-close" onclick="closeTicketModal()">×</button>
             </div>
-            
+
             <div class="ticket-details">
                 <p><strong>Status:</strong> <span id="modalStatus"></span></p>
                 <p><strong>Priority:</strong> <span id="modalPriority"></span></p>
@@ -674,7 +700,7 @@
                     <span id="modalDescription"></span>
                 </div>
             </div>
-            
+
             <div style="margin-top: 2rem;">
                 <h4><i class="fas fa-comments"></i> Comments</h4>
                 <div id="commentsContainer" style="margin-top: 1rem;">
@@ -694,14 +720,28 @@
             if (name !== name.trim()) {
                 return false;
             }
-            
+
             // Check for consecutive spaces
             if (name.includes('  ')) {
                 return false;
             }
-            
+
             // Check if it contains only letters and single spaces
             return /^[A-Za-z]+(?: [A-Za-z]+)*$/.test(name);
+        }
+
+        // Custom validation for email
+        function validateEmail(email) {
+            // Check pattern: starts with letter, followed by any allowed chars, then @domain
+            const regex = /^[a-zA-Z][a-zA-Z0-9._-]*@(?:gmail\.com|outlook\.com|[\w-]+\.(?:co|in|org))$/;
+            if (!regex.test(email)) {
+                return false;
+            }
+
+            // Count alphabetic characters in local part
+            const localPart = email.split('@')[0];
+            const alphaCount = (localPart.match(/[a-zA-Z]/g) || []).length;
+            return alphaCount >= 3;
         }
 
         // Custom validation for description
@@ -710,36 +750,42 @@
             if (desc !== desc.trim()) {
                 return false;
             }
-            
+
             // Check for consecutive spaces
             if (desc.includes('  ')) {
                 return false;
             }
-            
+
             // Check minimum length
             if (desc.length < 10) {
                 return false;
             }
-            
+
             // Check if it contains at least some letters (not all numbers/symbols)
             if (!/[a-zA-Z]/.test(desc)) {
                 return false;
             }
-            
+
             // Check if it's not all numbers
             if (/^\d+$/.test(desc.replace(/\s/g, ''))) {
                 return false;
             }
-            
+
             return true;
         }
 
         // Real-time validation function
         function validateField(field) {
             const feedback = field.nextElementSibling;
-            
+
             if (field.id === 'empName') {
                 if (!validateEmpName(field.value)) {
+                    field.classList.add('is-invalid');
+                    feedback.style.display = 'block';
+                    return false;
+                }
+            } else if (field.id === 'empEmail') {
+                if (!validateEmail(field.value)) {
                     field.classList.add('is-invalid');
                     feedback.style.display = 'block';
                     return false;
@@ -755,7 +801,7 @@
                 feedback.style.display = 'block';
                 return false;
             }
-            
+
             field.classList.remove('is-invalid');
             feedback.style.display = 'none';
             return true;
@@ -774,24 +820,24 @@
         // Form validation and submission
         document.getElementById('ticketForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            
+
             // Validate form
             let isValid = true;
             const formControls = document.querySelectorAll('.form-control');
-            
+
             formControls.forEach(control => {
                 if (!validateField(control)) {
                     isValid = false;
                 }
             });
-            
+
             if (!isValid) return;
-            
+
             try {
                 // Clean inputs by trimming whitespace
                 const empName = document.getElementById('empName').value.trim();
                 const description = document.getElementById('description').value.trim();
-                
+
                 const ticketData = {
                     empId: document.getElementById('empId').value.trim(),
                     empName: empName,
@@ -801,7 +847,7 @@
                     issueType: document.getElementById('issueType').value,
                     description: description
                 };
-                
+
                 const response = await fetch('http://54.166.206.245:3025/api/tickets', {
                     method: 'POST',
                     headers: {
@@ -817,14 +863,14 @@
                         description: ticketData.description
                     })
                 });
-                
+
                 if (!response.ok) {
                     const errorData = await response.json();
                     throw new Error(errorData.error || 'Failed to submit ticket');
                 }
-                
+
                 const result = await response.json();
-                
+
                 // Show preview
                 document.getElementById('previewTicketId').textContent = result.ticket_id;
                 document.getElementById('previewEmpId').textContent = result.emp_id;
@@ -833,17 +879,17 @@
                 document.getElementById('previewPriority').textContent = result.priority;
                 document.getElementById('previewIssueType').textContent = result.issue_type;
                 document.getElementById('previewDescription').textContent = result.description;
-                
+
                 document.getElementById('ticketPreview').style.display = 'block';
-                
+
                 // Show success modal
                 document.getElementById('successModal').classList.add('active');
-                
+
                 // Load the updated ticket list
                 if (currentEmpId === result.emp_id) {
                     await loadMyTickets();
                 }
-                
+
                 // Reset form
                 this.reset();
                 // Clear validation states after reset
@@ -853,10 +899,15 @@
                 });
             } catch (error) {
                 console.error('Error:', error);
-                alert('Error submitting ticket: ' + error.message);
+                // Show error in the email feedback instead of alert
+                const emailField = document.getElementById('empEmail');
+                const emailFeedback = emailField.nextElementSibling;
+                emailFeedback.textContent = error.message || 'Error submitting ticket';
+                emailField.classList.add('is-invalid');
+                emailFeedback.style.display = 'block';
             }
         });
-        
+
         // When emp_id field changes, load their tickets
         document.getElementById('empId').addEventListener('change', async function() {
             currentEmpId = this.value.trim();
@@ -874,44 +925,53 @@
         // Load employee's tickets
         async function loadMyTickets() {
             if (!currentEmpId) return;
-            
+
             try {
                 const statusFilter = document.getElementById('filterStatusEmp').value;
                 const params = new URLSearchParams();
                 params.append('emp_id', currentEmpId);
                 if (statusFilter) params.append('status', statusFilter);
-                
+
                 const response = await fetch(`http://54.166.206.245:3025/api/tickets?${params.toString()}`);
                 if (!response.ok) throw new Error('Failed to fetch tickets');
-                
+
                 const tickets = await response.json();
                 const ticketsBody = document.getElementById('myTicketsBody');
                 ticketsBody.innerHTML = '';
-                
+
                 if (tickets.length === 0) {
-                    ticketsBody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem;">No tickets found</td></tr>';
+                    ticketsBody.innerHTML = `
+                        <tr>
+                            <td colspan="7">
+                                <div class="no-data">
+                                    <img src="https://cdn-icons-png.flaticon.com/512/4076/4076478.png" alt="No Data">
+                                    <p>No tickets found</p>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
                     return;
                 }
-                
+
                 tickets.forEach(ticket => {
                     const row = document.createElement('tr');
-                    
+
                     // Format date
                     const createdDate = new Date(ticket.created_at);
                     const formattedDate = createdDate.toLocaleDateString() + ' ' + createdDate.toLocaleTimeString();
-                    
+
                     // Priority class
                     let priorityClass = '';
                     if (ticket.priority === 'High') priorityClass = 'priority-high';
                     if (ticket.priority === 'Critical') priorityClass = 'priority-critical';
-                    
+
                     // Status badge
                     let statusBadge = '';
                     if (ticket.status === 'Open') statusBadge = 'status-open';
                     if (ticket.status === 'In Progress') statusBadge = 'status-in-progress';
                     if (ticket.status === 'Resolved') statusBadge = 'status-resolved';
                     if (ticket.status === 'Closed') statusBadge = 'status-closed';
-                    
+
                     row.innerHTML = `
                         <td>${ticket.ticket_id}</td>
                         <td>${ticket.department}</td>
@@ -925,12 +985,22 @@
                             </button>
                         </td>
                     `;
-                    
+
                     ticketsBody.appendChild(row);
                 });
             } catch (error) {
                 console.error('Error loading tickets:', error);
-                alert('Error loading your tickets');
+                const ticketsBody = document.getElementById('myTicketsBody');
+                ticketsBody.innerHTML = `
+                    <tr>
+                        <td colspan="7">
+                            <div class="no-data">
+                                <img src="https://cdn-icons-png.flaticon.com/512/4076/4076478.png" alt="No Data">
+                                <p>Error loading tickets</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
             }
         }
 
@@ -939,14 +1009,14 @@
             try {
                 const response = await fetch(`http://54.166.206.245:3025/api/tickets/${ticketId}`);
                 if (!response.ok) throw new Error('Failed to fetch ticket');
-                
+
                 const ticket = await response.json();
                 currentTicketId = ticket.ticket_id;
-                
+
                 // Format date
                 const createdDate = new Date(ticket.created_at);
                 const formattedDate = createdDate.toLocaleDateString() + ' ' + createdDate.toLocaleTimeString();
-                
+
                 document.getElementById('modalTicketId').textContent = ticket.ticket_id;
                 document.getElementById('modalStatus').textContent = ticket.status;
                 document.getElementById('modalPriority').textContent = ticket.priority;
@@ -954,14 +1024,19 @@
                 document.getElementById('modalIssueType').textContent = ticket.issue_type;
                 document.getElementById('modalCreated').textContent = formattedDate;
                 document.getElementById('modalDescription').textContent = ticket.description;
-                
+
                 // Load comments
                 await loadComments(ticketId);
-                
+
                 document.getElementById('ticketModal').classList.add('active');
             } catch (error) {
                 console.error('Error viewing ticket:', error);
-                alert('Error loading ticket details');
+                // Show error in the email feedback instead of alert
+                const emailField = document.getElementById('empEmail');
+                const emailFeedback = emailField.nextElementSibling;
+                emailFeedback.textContent = error.message || 'Error loading ticket details';
+                emailField.classList.add('is-invalid');
+                emailFeedback.style.display = 'block';
             }
         }
 
@@ -970,31 +1045,31 @@
             try {
                 const response = await fetch(`http://54.166.206.245:3025/api/tickets/${ticketId}/comments`);
                 if (!response.ok) throw new Error('Failed to fetch comments');
-                
+
                 const comments = await response.json();
                 const commentsContainer = document.getElementById('commentsContainer');
                 commentsContainer.innerHTML = '';
-                
+
                 if (comments.length === 0) {
                     commentsContainer.innerHTML = '<p>No comments yet</p>';
                     return;
                 }
-                
+
                 comments.forEach(comment => {
                     const commentDate = new Date(comment.created_at);
                     const formattedDate = commentDate.toLocaleDateString() + ' ' + commentDate.toLocaleTimeString();
-                    
+
                     const commentDiv = document.createElement('div');
                     commentDiv.style.padding = '1rem';
                     commentDiv.style.marginBottom = '1rem';
                     commentDiv.style.background = '#f8f9fa';
                     commentDiv.style.borderRadius = '6px';
-                    
+
                     commentDiv.innerHTML = `
                         <p><strong>${comment.author}</strong> <small>${formattedDate}</small></p>
                         <p>${comment.comment}</p>
                     `;
-                    
+
                     commentsContainer.appendChild(commentDiv);
                 });
             } catch (error) {
