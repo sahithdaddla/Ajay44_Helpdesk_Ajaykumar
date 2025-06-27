@@ -1,4 +1,3 @@
-// server.js
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -7,64 +6,89 @@ const { Pool } = require('pg');
 const app = express();
 const port = process.env.PORT || 3426;
 
-// PostgreSQL connection
-const pool = new Pool({
+// PostgreSQL connection with retry logic
+const createPool = () => {
+  return new Pool({
     user: process.env.DB_USER || 'postgres',
     host: process.env.DB_HOST || 'postgres',
     database: process.env.DB_NAME || 'new_employee_db',
     password: process.env.DB_PASSWORD || 'admin123',
     port: process.env.DB_PORT || 5432,
-});
+  });
+};
+
+let pool = createPool();
 
 // Middleware
 app.use(cors({
     origin: [
-	'http://44.223.23.145:8049',   
-        'http://44.223.23.145:8050', 
+        'http://44.223.23.145:8049',
+        'http://44.223.23.145:8050',
         'http://127.0.0.1:3025',
-        'http://127.0.0.1:5500'
-    ]
+        'http://127.0.0.1:5500',
+        'http://localhost:8049'
+    ],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
 
-// Initialize database tables
-const initializeDatabase = async () => {
-    try {
-        await pool.query(`
-            CREATE TABLE IF NOT EXISTS tickets (
-                id SERIAL PRIMARY KEY,
-                ticket_id VARCHAR(20) UNIQUE NOT NULL,
-                emp_id VARCHAR(10) NOT NULL,
-                emp_name VARCHAR(100) NOT NULL,
-                emp_email VARCHAR(100) NOT NULL,
-                department VARCHAR(50) NOT NULL,
-                priority VARCHAR(20) NOT NULL,
-                issue_type VARCHAR(50) NOT NULL,
-                description TEXT NOT NULL,
-                status VARCHAR(20) DEFAULT 'Open',
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            );
-        `);
+// Database initialization with retry
+const createTables = async () => {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS tickets (
+      id SERIAL PRIMARY KEY,
+      ticket_id VARCHAR(20) UNIQUE NOT NULL,
+      emp_id VARCHAR(10) NOT NULL,
+      emp_name VARCHAR(100) NOT NULL,
+      emp_email VARCHAR(100) NOT NULL,
+      department VARCHAR(50) NOT NULL,
+      priority VARCHAR(20) NOT NULL,
+      issue_type VARCHAR(50) NOT NULL,
+      description TEXT NOT NULL,
+      status VARCHAR(20) DEFAULT 'Open',
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
 
-        await pool.query(`
-            CREATE TABLE IF NOT EXISTS comments (
-                id SERIAL PRIMARY KEY,
-                ticket_id VARCHAR(20) REFERENCES tickets(ticket_id) ON DELETE CASCADE,
-                comment TEXT NOT NULL,
-                author VARCHAR(100) NOT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            );
-        `);
-
-        console.log('Database tables initialized successfully');
-    } catch (err) {
-        console.error('Error initializing database:', err);
-        process.exit(1);
-    }
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS comments (
+      id SERIAL PRIMARY KEY,
+      ticket_id VARCHAR(20) REFERENCES tickets(ticket_id) ON DELETE CASCADE,
+      comment TEXT NOT NULL,
+      author VARCHAR(100) NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
 };
 
-// Routes
+const initializeDatabase = async () => {
+  let retries = 5;
+  while (retries) {
+    try {
+      await pool.query('SELECT 1');
+      await createTables();
+      console.log('Database connected and tables initialized');
+      return;
+    } catch (err) {
+      retries--;
+      console.log(`Database connection failed, retries left: ${retries}`, err.message);
+      await new Promise(res => setTimeout(res, 5000));
+      
+      if (pool) await pool.end();
+      pool = createPool();
+    }
+  }
+  throw new Error('Failed to connect to database after retries');
+};
+
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ status: 'healthy', timestamp: new Date() });
+});
+
+// Create new ticket
 app.post('/api/tickets', async (req, res) => {
     try {
         const { emp_id, emp_name, emp_email, department, priority, issue_type, description } = req.body;
@@ -91,6 +115,7 @@ app.post('/api/tickets', async (req, res) => {
     }
 });
 
+// Get all tickets with optional filters
 app.get('/api/tickets', async (req, res) => {
     try {
         const { emp_id, status, priority, department, issue_type } = req.query;
@@ -134,6 +159,7 @@ app.get('/api/tickets', async (req, res) => {
     }
 });
 
+// Get single ticket by ID
 app.get('/api/tickets/:id', async (req, res) => {
     try {
         const { id } = req.params;
@@ -150,6 +176,7 @@ app.get('/api/tickets/:id', async (req, res) => {
     }
 });
 
+// Update ticket status
 app.put('/api/tickets/:id/status', async (req, res) => {
     try {
         const { id } = req.params;
@@ -175,6 +202,7 @@ app.put('/api/tickets/:id/status', async (req, res) => {
     }
 });
 
+// Add comment to ticket
 app.post('/api/tickets/:id/comments', async (req, res) => {
     try {
         const { id } = req.params;
@@ -197,6 +225,7 @@ app.post('/api/tickets/:id/comments', async (req, res) => {
     }
 });
 
+// Get all comments for a ticket
 app.get('/api/tickets/:id/comments', async (req, res) => {
     try {
         const { id } = req.params;
@@ -212,10 +241,11 @@ app.get('/api/tickets/:id/comments', async (req, res) => {
     }
 });
 
+// Get ticket statistics
 app.get('/api/tickets/stats', async (req, res) => {
     try {
         const result = await pool.query(`
-            SELECT 
+            SELECT
                 status,
                 COUNT(*) as count
             FROM tickets
@@ -240,6 +270,12 @@ app.get('/api/tickets/stats', async (req, res) => {
     }
 });
 
+// Error handling middleware
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({ error: 'Something went wrong!' });
+});
+
 // Start server
 const startServer = async () => {
     try {
@@ -253,5 +289,17 @@ const startServer = async () => {
     }
 };
 
-startServer();
+// Graceful shutdown
+process.on('SIGTERM', async () => {
+    console.log('SIGTERM received. Shutting down gracefully...');
+    await pool.end();
+    process.exit(0);
+});
 
+process.on('SIGINT', async () => {
+    console.log('SIGINT received. Shutting down gracefully...');
+    await pool.end();
+    process.exit(0);
+});
+
+startServer();
