@@ -12,20 +12,20 @@ services:
       - db_data:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
-      - "5457:5432"
+      - "5426:5432"
 
   backend:
     build: ./Backend
     container_name: helpdesk_backend
     ports:
-      - "3025:3025"
+      - "3426:3426"
     environment:
       - DB_USER=postgres
       - DB_PASSWORD=admin123
       - DB_NAME=new_employee_db
       - DB_HOST=postgres
       - DB_PORT=5432
-      - PORT=3025
+      - PORT=3426
     depends_on:
       - postgres
 
@@ -33,13 +33,13 @@ services:
     build: ./Frontend
     container_name: helpdesk_frontend
     ports:
-      - "8042:80"
+      - "8049:80"
 
   hr_page:
     build: ./Hr_page
     container_name: helpdesk_hr_page
     ports:
-      - "8043:80"
+      - "8050:80"
 
 volumes:
   db_data:

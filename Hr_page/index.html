@@ -636,7 +636,7 @@
                 if (departmentFilter) params.append('department', departmentFilter);
                 if (issueTypeFilter) params.append('issue_type', issueTypeFilter);
                 
-                const response = await fetch(`http://54.166.206.245:3025/api/tickets?${params.toString()}`);
+                const response = await fetch(`http://44.223.23.145:3426/api/tickets?${params.toString()}`);
                 if (!response.ok) throw new Error('Failed to fetch tickets');
                 
                 const tickets = await response.json();
@@ -707,7 +707,7 @@
         // View ticket details
         async function viewTicket(ticketId) {
             try {
-                const response = await fetch(`http://54.166.206.245:3025/api/tickets/${ticketId}`);
+                const response = await fetch(`http://44.223.23.145:3426/api/tickets/${ticketId}`);
                 if (!response.ok) throw new Error('Failed to fetch ticket');
                 
                 const ticket = await response.json();
@@ -745,7 +745,7 @@
         async function resolveTicket(ticketId) {
             if (confirm('Mark this ticket as resolved?')) {
                 try {
-                    const response = await fetch(`http://54.166.206.245:3025/api/tickets/${ticketId}/status`, {
+                    const response = await fetch(`http://44.223.23.145:3426/api/tickets/${ticketId}/status`, {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json'
@@ -768,7 +768,7 @@
         async function closeTicket(ticketId) {
             if (confirm('Close this ticket?')) {
                 try {
-                    const response = await fetch(`http://54.166.206.245:3025/api/tickets/${ticketId}/status`, {
+                    const response = await fetch(`http://44.223.23.145:3426/api/tickets/${ticketId}/status`, {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json'
@@ -792,7 +792,7 @@
             if (!currentTicketId) return;
             
             try {
-                const response = await fetch(`http://54.166.206.245:3025/api/tickets/${currentTicketId}/status`, {
+                const response = await fetch(`http://44.223.23.145:3426/api/tickets/${currentTicketId}/status`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json'
@@ -819,7 +819,7 @@
             if (!comment) return;
             
             try {
-                const response = await fetch(`http://54.166.206.245:3025/api/tickets/${currentTicketId}/comments`, {
+                const response = await fetch(`http://44.223.23.145:3426/api/tickets/${currentTicketId}/comments`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
