@@ -185,18 +185,49 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 1rem;
+            table-layout: fixed; /* Ensure consistent column widths */
         }
 
         .tickets-table th, .tickets-table td {
             padding: 1rem;
             text-align: left;
             border-bottom: 1px solid #eee;
+            vertical-align: middle; /* Align content vertically in the middle */
         }
 
         .tickets-table th {
             background: rgba(67, 97, 238, 0.05);
             font-weight: 600;
             color: var(--primary);
+            text-align: center; /* Center-align headers */
+        }
+
+        .tickets-table td {
+            text-align: center; /* Center-align data cells */
+        }
+
+        .tickets-table th:first-child, .tickets-table td:first-child {
+            width: 10%; /* Fixed width for Ticket ID column */
+        }
+
+        .tickets-table th:nth-child(2), .tickets-table td:nth-child(2) {
+            width: 15%; /* Fixed width for Employee column */
+        }
+
+        .tickets-table th:nth-child(5), .tickets-table td:nth-child(5) {
+            width: 10%; /* Fixed width for Priority column */
+        }
+
+        .tickets-table th:nth-child(6), .tickets-table td:nth-child(6) {
+            width: 10%; /* Fixed width for Status column */
+        }
+
+        .tickets-table th:nth-child(7), .tickets-table td:nth-child(7) {
+            width: 15%; /* Fixed width for Created column */
+        }
+
+        .tickets-table th:last-child, .tickets-table td:last-child {
+            width: 15%; /* Fixed width for Actions column */
         }
 
         .tickets-table tr:hover {
@@ -249,6 +280,9 @@
             font-size: 1rem;
             margin: 0 0.25rem;
             transition: transform 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .action-btn:hover {
