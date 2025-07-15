@@ -49,7 +49,7 @@
             position: relative;
             text-align: center;
             height: 140px;
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            background: linear-gradient(rgb(10, 10, 255),rgb(203, 11, 242));
             color: #fff;
             border-radius: 15px;
             overflow: hidden;
@@ -655,89 +655,102 @@
         });
         
         // Render tickets based on filters
-        async function renderTickets() {
-            try {
-                // Get filter values safely
-                const statusFilter = document.getElementById('filterStatus')?.value || '';
-                const priorityFilter = document.getElementById('filterPriority')?.value || '';
-                const departmentFilter = document.getElementById('filterDepartment')?.value || '';
-                const issueTypeFilter = document.getElementById('filterIssueType')?.value || '';
-                
-                // Build query string
-                const params = new URLSearchParams();
-                if (statusFilter) params.append('status', statusFilter);
-                if (priorityFilter) params.append('priority', priorityFilter);
-                if (departmentFilter) params.append('department', departmentFilter);
-                if (issueTypeFilter) params.append('issue_type', issueTypeFilter);
-                
-                const response = await fetch(`http://44.223.23.145:3426/api/tickets?${params.toString()}`);
-                if (!response.ok) throw new Error('Failed to fetch tickets');
-                
-                const tickets = await response.json();
-                const ticketsBody = document.getElementById('ticketsBody');
-                if (!ticketsBody) {
-                    console.error('Tickets table body not found');
-                    return;
-                }
-                
-                ticketsBody.innerHTML = '';
-                
-                if (tickets.length === 0) {
-                    ticketsBody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 2rem;">No tickets found matching your filters</td></tr>';
-                    return;
-                }
-                
-                tickets.forEach(ticket => {
-                    const row = document.createElement('tr');
-                    
-                    // Format date
-                    const createdDate = new Date(ticket.created_at || ticket.createdAt || Date.now());
-                    const formattedDate = createdDate.toLocaleDateString() + ' ' + createdDate.toLocaleTimeString();
-                    
-                    // Priority class
-                    let priorityClass = '';
-                    if (ticket.priority === 'High') priorityClass = 'priority-high';
-                    if (ticket.priority === 'Critical') priorityClass = 'priority-critical';
-                    
-                    // Status badge
-                    let statusBadge = '';
-                    if (ticket.status === 'Open') statusBadge = 'status-open';
-                    if (ticket.status === 'In Progress') statusBadge = 'status-in-progress';
-                    if (ticket.status === 'Resolved') statusBadge = 'status-resolved';
-                    if (ticket.status === 'Closed') statusBadge = 'status-closed';
-                    
-                    row.innerHTML = `
-                        <td>${ticket.ticket_id || ticket.id}</td>
-                        <td>${ticket.emp_name || ticket.employeeName}<br><small>${ticket.emp_id || ticket.employeeId}</small></td>
-                        <td>${ticket.department}</td>
-                        <td>${ticket.issue_type || ticket.issueType}</td>
-                        <td class="${priorityClass}">${ticket.priority}</td>
-                        <td><span class="status-badge ${statusBadge}">${ticket.status}</span></td>
-                        <td>${formattedDate}</td>
-                        <td>
-                            <button class="action-btn btn-view" onclick="viewTicket('${ticket.ticket_id || ticket.id}')" title="View">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="action-btn btn-resolve" onclick="resolveTicket('${ticket.ticket_id || ticket.id}')" title="Resolve">
-                                <i class="fas fa-check"></i>
-                            </button>
-                            <button class="action-btn btn-close" onclick="closeTicket('${ticket.ticket_id || ticket.id}')" title="Close">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </td>
-                    `;
-                    
-                    ticketsBody.appendChild(row);
-                });
-            } catch (error) {
-                console.error('Error fetching tickets:', error);
-                const ticketsBody = document.getElementById('ticketsBody');
-                if (ticketsBody) {
-                    ticketsBody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 2rem; color: var(--danger);">Error loading tickets</td></tr>';
-                }
-            }
+async function renderTickets() {
+    try {
+        // Get filter values safely
+        const statusFilter = document.getElementById('filterStatus')?.value || '';
+        const priorityFilter = document.getElementById('filterPriority')?.value || '';
+        const departmentFilter = document.getElementById('filterDepartment')?.value || '';
+        const issueTypeFilter = document.getElementById('filterIssueType')?.value || '';
+
+        // Build query string
+        const params = new URLSearchParams();
+        if (statusFilter) params.append('status', statusFilter);
+        if (priorityFilter) params.append('priority', priorityFilter);
+        if (departmentFilter) params.append('department', departmentFilter);
+        if (issueTypeFilter) params.append('issue_type', issueTypeFilter);
+
+        const response = await fetch(`http://44.223.23.145:3426/api/tickets?${params.toString()}`);
+        if (!response.ok) throw new Error('Failed to fetch tickets');
+
+        const tickets = await response.json();
+        const ticketsBody = document.getElementById('ticketsBody');
+        if (!ticketsBody) {
+            console.error('Tickets table body not found');
+            return;
         }
-        
+
+        ticketsBody.innerHTML = '';
+
+        if (tickets.length === 0) {
+            ticketsBody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 2rem;">No tickets found matching your filters</td></tr>';
+            return;
+        }
+
+        tickets.forEach(ticket => {
+            const row = document.createElement('tr');
+
+            // Format date
+            const createdDate = new Date(ticket.created_at || ticket.createdAt || Date.now());
+            const formattedDate = createdDate.toLocaleDateString() + ' ' + createdDate.toLocaleTimeString();
+
+            // Priority class
+            let priorityClass = '';
+            if (ticket.priority === 'High') priorityClass = 'priority-high';
+            if (ticket.priority === 'Critical') priorityClass = 'priority-critical';
+
+            // Status badge
+            let statusBadge = '';
+            if (ticket.status === 'Open') statusBadge = 'status-open';
+            if (ticket.status === 'In Progress') statusBadge = 'status-in-progress';
+            if (ticket.status === 'Resolved') statusBadge = 'status-resolved';
+            if (ticket.status === 'Closed') statusBadge = 'status-closed';
+
+            // Truncate text function
+            const truncateText = (text, maxLength = 15) => {
+                if (!text) return 'N/A';
+                return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+            };
+
+            // Prepare truncated values
+            const empName = truncateText(ticket.emp_name || ticket.employeeName);
+            const empId = truncateText(ticket.emp_id || ticket.employeeId);
+            const department = truncateText(ticket.department);
+            const issueType = truncateText(ticket.issue_type || ticket.issueType);
+
+            row.innerHTML = `
+                <td>${ticket.ticket_id || ticket.id}</td>
+                <td class="truncate" title="${ticket.emp_name || ticket.employeeName || 'N/A'}\n${ticket.emp_id || ticket.employeeId || 'N/A'}">
+                    ${empName}<br><small>${empId}</small>
+                </td>
+                <td class="truncate" title="${ticket.department || 'N/A'}">${department}</td>
+                <td class="truncate" title="${ticket.issue_type || ticket.issueType || 'N/A'}">${issueType}</td>
+                <td class="${priorityClass}">${ticket.priority}</td>
+                <td><span class="status-badge ${statusBadge}">${ticket.status}</span></td>
+                <td>${formattedDate}</td>
+                <td>
+                    <button class="action-btn btn-view" onclick="viewTicket('${ticket.ticket_id || ticket.id}')" title="View">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="action-btn btn-resolve" onclick="resolveTicket('${ticket.ticket_id || ticket.id}')" title="Resolve">
+                        <i class="fas fa-check"></i>
+                    </button>
+                    <button class="action-btn btn-close" onclick="closeTicket('${ticket.ticket_id || ticket.id}')" title="Close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </td>
+            `;
+
+            ticketsBody.appendChild(row);
+        });
+    } catch (error) {
+        console.error('Error fetching tickets:', error);
+        const ticketsBody = document.getElementById('ticketsBody');
+        if (ticketsBody) {
+            ticketsBody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 2rem; color: var(--danger);">Error loading tickets</td></tr>';
+        }
+    }
+}       
         // View ticket details
         async function viewTicket(ticketId) {
             try {
