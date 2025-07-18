@@ -450,7 +450,7 @@
         .ticket-details strong {
             color: var(--dark);
             display: inline-block;
-            min-width: 150px;
+            min-width: 120px;
         }
 
         .ticket-description {
@@ -832,7 +832,7 @@
                     <select id="department" class="form-control" required>
                         <option value="">Select Department</option>
                         <option value="IT">IT</option>
-                        <option value="Human Resources">Human Resources</option>
+                        <option value="HR">Human Resources</option>
                         <option value="Finance">Finance</option>
                         <option value="Operations">Operations</option>
                         <option value="Marketing">Marketing</option>
@@ -921,13 +921,11 @@
                     </tr>
                 </thead>
                 <tbody id="myTicketsBody">
-                    <!-- Employee's tickets will be loaded here -->
                 </tbody>
             </table>
         </div>
     </div>
     
-    <!-- Success Modal -->
     <div id="successModal" class="modal success-modal">
         <div class="modal-content">
             <div class="modal-body">
@@ -943,7 +941,6 @@
         </div>
     </div>
 
-    <!-- Ticket Detail Modal -->
     <div id="ticketModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -955,13 +952,12 @@
             
             <div class="modal-body">
                 <div class="ticket-details">
-                    <p><strong>Employee Name:</strong> <span id="modalEmpName"></span></p>
+                    <p><strong>Name:</strong> <span id="modalEmpName"></span></p>
                     <p><strong>Email:</strong> <span id="modalEmpEmail"></span></p>
                     <p><strong>Status:</strong> <span id="modalStatus"></span></p>
                     <p><strong>Priority:</strong> <span id="modalPriority"></span></p>
                     <p><strong>Department:</strong> <span id="modalDepartment"></span></p>
                     <p><strong>Issue Type:</strong> <span id="modalIssueType"></span></p>
-                    <p><strong>Created:</strong> <span id="modalCreated"></span></p>
                     <p><strong>Description:</strong></p>
                     <div class="ticket-description">
                         <span id="modalDescription"></span>
@@ -971,7 +967,6 @@
                 <div class="comments-section">
                     <h4><i class="fas fa-comments"></i> Comments</h4>
                     <div id="commentsContainer">
-                        <!-- Comments will be loaded here -->
                     </div>
                 </div>
             </div>
@@ -1083,8 +1078,6 @@
                     description: description
                 };
                 
-                console.log('Submitting ticket data:', ticketData); // Debug log
-                
                 const response = await fetch('http://44.223.23.145:3426/api/tickets', {
                     method: 'POST',
                     headers: {
@@ -1132,7 +1125,7 @@
                     control.nextElementSibling.style.display = 'none';
                 });
             } catch (error) {
-                console.error('Error submitting ticket:', error);
+                console.error('Error:', error);
                 alert('Error submitting ticket: ' + error.message);
             }
         });
@@ -1214,9 +1207,6 @@
                 const ticket = await response.json();
                 currentTicketId = ticket.ticket_id;
                 
-                const createdDate = new Date(ticket.created_at);
-                const formattedDate = createdDate.toLocaleDateString() + ' ' + createdDate.toLocaleTimeString();
-                
                 document.getElementById('modalTicketId').textContent = ticket.ticket_id;
                 document.getElementById('modalEmpName').textContent = ticket.emp_name;
                 document.getElementById('modalEmpEmail').textContent = ticket.emp_email;
@@ -1224,7 +1214,6 @@
                 document.getElementById('modalPriority').textContent = ticket.priority;
                 document.getElementById('modalDepartment').textContent = ticket.department;
                 document.getElementById('modalIssueType').textContent = ticket.issue_type;
-                document.getElementById('modalCreated').textContent = formattedDate;
                 document.getElementById('modalDescription').textContent = ticket.description;
                 
                 await loadComments(ticketId);
@@ -1282,6 +1271,5 @@
             currentTicketId = null;
         }
     </script>
-   
 </body>
 </html>

@@ -20,10 +20,6 @@
             --in-progress: #f8961e;
             --resolved: #007e1f;
             --closed: #6c757d;
-            --priority-critical: #dc3545;
-            --priority-high: #6f42c1;
-            --priority-medium: #ffc107;
-            --priority-low: #28a745;
         }
 
         * {
@@ -39,16 +35,27 @@
             color: var(--dark);
         }
 
-        header {
+        .banner {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+         header {
             position: relative;
             text-align: center;
             height: 140px;
-            background: linear-gradient(rgb(10, 10, 255), rgb(203, 11, 242));
+            background: linear-gradient(rgb(10, 10, 255),rgb(203, 11, 242));
             color: #fff;
             border-radius: 15px;
             overflow: hidden;
             display: flex;
             width: 100%;
+           
             align-items: center;
             justify-content: center;
             flex-direction: column;
@@ -178,53 +185,49 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 1rem;
-            table-layout: fixed;
+            table-layout: fixed; /* Ensure consistent column widths */
         }
 
         .tickets-table th, .tickets-table td {
             padding: 1rem;
             text-align: left;
             border-bottom: 1px solid #eee;
-            vertical-align: middle;
+            vertical-align: middle; /* Align content vertically in the middle */
         }
 
         .tickets-table th {
             background: rgba(67, 97, 238, 0.05);
             font-weight: 600;
             color: var(--primary);
-            text-align: center;
+            text-align: center; /* Center-align headers */
         }
 
         .tickets-table td {
-            text-align: center;
+            text-align: center; /* Center-align data cells */
         }
 
         .tickets-table th:first-child, .tickets-table td:first-child {
-            width: 10%;
+            width: 10%; /* Fixed width for Ticket ID column */
         }
 
         .tickets-table th:nth-child(2), .tickets-table td:nth-child(2) {
-            width: 15%;
-        }
-
-        .tickets-table th:nth-child(3), .tickets-table td:nth-child(3) {
-            width: 15%;
-        }
-
-        .tickets-table th:nth-child(4), .tickets-table td:nth-child(4) {
-            width: 15%;
+            width: 15%; /* Fixed width for Employee column */
         }
 
         .tickets-table th:nth-child(5), .tickets-table td:nth-child(5) {
-            width: 10%;
+            width: 10%; /* Fixed width for Priority column */
         }
 
         .tickets-table th:nth-child(6), .tickets-table td:nth-child(6) {
-            width: 10%;
+            width: 10%; /* Fixed width for Status column */
+        }
+
+        .tickets-table th:nth-child(7), .tickets-table td:nth-child(7) {
+            width: 15%; /* Fixed width for Created column */
         }
 
         .tickets-table th:last-child, .tickets-table td:last-child {
-            width: 15%;
+            width: 15%; /* Fixed width for Actions column */
         }
 
         .tickets-table tr:hover {
@@ -259,25 +262,15 @@
             color: var(--closed);
         }
 
+        .priority-high {
+            color: var(--danger);
+            font-weight: 600;
+        }
+
         .priority-critical {
-            color: var(--priority-critical);
+            color: var(--danger);
             font-weight: 600;
             animation: pulse 1.5s infinite;
-        }
-
-        .priority-high {
-            color: var(--priority-high);
-            font-weight: 600;
-        }
-
-        .priority-medium {
-            color: var(--priority-medium);
-            font-weight: 600;
-        }
-
-        .priority-low {
-            color: var(--priority-low);
-            font-weight: 600;
         }
 
         .action-btn {
@@ -312,6 +305,7 @@
             color: var(--gray);
         }
 
+        /* Modal */
         .modal {
             position: fixed;
             top: 0;
@@ -451,6 +445,7 @@
             transform: translateY(-2px);
         }
 
+        /* Animations */
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
@@ -484,8 +479,9 @@
             100% { opacity: 1; }
         }
 
+        /* Responsive */
         @media (max-width: 768px) {
-            header h1 {
+            .banner h1 {
                 font-size: 2rem;
             }
             
@@ -546,6 +542,32 @@
                         <option value="Critical">Critical</option>
                     </select>
                 </div>
+                
+                <div class="filter-group">
+                    <label for="filterDepartment">Department</label>
+                    <select id="filterDepartment" class="filter-control">
+                        <option value="">All Departments</option>
+                        <option value="IT">IT</option>
+                        <option value="HR">Human Resources</option>
+                        <option value="Finance">Finance</option>
+                        <option value="Operations">Operations</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="filterIssueType">Issue Type</label>
+                    <select id="filterIssueType" class="filter-control">
+                        <option value="">All Issue Types</option>
+                        <option value="Technical">Technical Issue</option>
+                        <option value="Hardware">Hardware Problem</option>
+                        <option value="Software">Software Problem</option>
+                        <option value="Access">Access Request</option>
+                        <option value="Account">Account Issue</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
             </div>
         </div>
         
@@ -561,6 +583,7 @@
                         <th>Issue Type</th>
                         <th>Priority</th>
                         <th>Status</th>
+                        <th>Created</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -571,6 +594,7 @@
         </div>
     </div>
     
+    <!-- Ticket Detail Modal -->
     <div id="ticketModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -611,117 +635,117 @@
     </div>
 
     <script>
+        // Global variable to track current ticket in modal
         let currentTicketId = null;
         
+        // Initialize the page
         document.addEventListener('DOMContentLoaded', async function() {
             try {
                 await renderTickets();
                 
+                // Add event listeners to filters
                 document.getElementById('filterStatus').addEventListener('change', renderTickets);
                 document.getElementById('filterPriority').addEventListener('change', renderTickets);
+                document.getElementById('filterDepartment').addEventListener('change', renderTickets);
+                document.getElementById('filterIssueType').addEventListener('change', renderTickets);
             } catch (error) {
                 console.error('Initialization error:', error);
                 alert('Error initializing page');
             }
         });
         
-        async function renderTickets() {
-            try {
-                const statusFilter = document.getElementById('filterStatus')?.value || '';
-                const priorityFilter = document.getElementById('filterPriority')?.value || '';
+        // Render tickets based on filters
+async function renderTickets() {
+    try {
+        // Get filter values safely
+        const statusFilter = document.getElementById('filterStatus')?.value || '';
+        const priorityFilter = document.getElementById('filterPriority')?.value || '';
+        const departmentFilter = document.getElementById('filterDepartment')?.value || '';
+        const issueTypeFilter = document.getElementById('filterIssueType')?.value || '';
 
-                // Normalize priority filter for API (e.g., API might expect lowercase)
-                const normalizedPriority = priorityFilter ? priorityFilter.toLowerCase() : '';
+        // Build query string
+        const params = new URLSearchParams();
+        if (statusFilter) params.append('status', statusFilter);
+        if (priorityFilter) params.append('priority', priorityFilter);
+        if (departmentFilter) params.append('department', departmentFilter);
+        if (issueTypeFilter) params.append('issue_type', issueTypeFilter);
 
-                const params = new URLSearchParams();
-                if (statusFilter) params.append('status', statusFilter);
-                if (priorityFilter) params.append('priority', normalizedPriority);
+        const response = await fetch(`http://44.223.23.145:3426/api/tickets?${params.toString()}`);
+        if (!response.ok) throw new Error('Failed to fetch tickets');
 
-                console.log('Fetching tickets with params:', params.toString());
-
-                const response = await fetch(`http://44.223.23.145:3426/api/tickets?${params.toString()}`);
-                if (!response.ok) {
-                    console.error('API response status:', response.status, response.statusText);
-                    throw new Error('Failed to fetch tickets');
-                }
-
-                let tickets = await response.json();
-                console.log('Received tickets:', tickets);
-
-                // Fallback: Client-side filtering if API doesn't filter priority correctly
-                if (priorityFilter) {
-                    tickets = tickets.filter(ticket => 
-                        (ticket.priority || '').toLowerCase() === normalizedPriority
-                    );
-                }
-
-                const ticketsBody = document.getElementById('ticketsBody');
-                if (!ticketsBody) {
-                    console.error('Tickets table body not found');
-                    return;
-                }
-
-                ticketsBody.innerHTML = '';
-
-                if (tickets.length === 0) {
-                    ticketsBody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem;">No tickets found matching your filters</td></tr>';
-                    return;
-                }
-
-                tickets.forEach(ticket => {
-                    const row = document.createElement('tr');
-
-                    let priorityClass = '';
-                    const ticketPriority = (ticket.priority || '').toLowerCase();
-                    if (ticketPriority === 'critical') priorityClass = 'priority-critical';
-                    if (ticketPriority === 'high') priorityClass = 'priority-high';
-                    if (ticketPriority === 'medium') priorityClass = 'priority-medium';
-                    if (ticketPriority === 'low') priorityClass = 'priority-low';
-
-                    let statusBadge = '';
-                    if (ticket.status === 'Open') statusBadge = 'status-open';
-                    if (ticket.status === 'In Progress') statusBadge = 'status-in-progress';
-                    if (ticket.status === 'Resolved') statusBadge = 'status-resolved';
-                    if (ticket.status === 'Closed') statusBadge = 'status-closed';
-
-                    const truncateText = (text, maxLength = 15) => {
-                        if (!text) return 'N/A';
-                        return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
-                    };
-
-                    const empName = truncateText(ticket.emp_name || ticket.employeeName);
-                    const empId = truncateText(ticket.emp_id || ticket.employeeId);
-                    const department = truncateText(ticket.department);
-                    const issueType = truncateText(ticket.issue_type || ticket.issueType);
-                    const ticketId = ticket.ticket_id || ticket.id || 'ATS' + Math.random().toString(36).substr(2, 5).toUpperCase();
-
-                    row.innerHTML = `
-                        <td>${ticketId}</td>
-                        <td class="truncate" title="${ticket.emp_name || ticket.employeeName || 'N/A'}\n${ticket.emp_id || ticket.employeeId || 'N/A'}">
-                            ${empName}<br><small>${empId}</small>
-                        </td>
-                        <td class="truncate" title="${ticket.department || 'N/A'}">${department}</td>
-                        <td class="truncate" title="${ticket.issue_type || ticket.issueType || 'N/A'}">${issueType}</td>
-                        <td class="${priorityClass}">${ticket.priority || 'N/A'}</td>
-                        <td><span class="status-badge ${statusBadge}">${ticket.status}</span></td>
-                        <td>
-                            <button class="action-btn btn-view" onclick="viewTicket('${ticketId}')" title="View">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                        </td>
-                    `;
-
-                    ticketsBody.appendChild(row);
-                });
-            } catch (error) {
-                console.error('Error fetching tickets:', error);
-                const ticketsBody = document.getElementById('ticketsBody');
-                if (ticketsBody) {
-                    ticketsBody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem; color: var(--danger);">Error loading tickets</td></tr>';
-                }
-            }
+        const tickets = await response.json();
+        const ticketsBody = document.getElementById('ticketsBody');
+        if (!ticketsBody) {
+            console.error('Tickets table body not found');
+            return;
         }
-        
+
+        ticketsBody.innerHTML = '';
+
+        if (tickets.length === 0) {
+            ticketsBody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 2rem;">No tickets found matching your filters</td></tr>';
+            return;
+        }
+
+        tickets.forEach(ticket => {
+            const row = document.createElement('tr');
+
+            // Format date
+            const createdDate = new Date(ticket.created_at || ticket.createdAt || Date.now());
+            const formattedDate = createdDate.toLocaleDateString() + ' ' + createdDate.toLocaleTimeString();
+
+            // Priority class
+            let priorityClass = '';
+            if (ticket.priority === 'High') priorityClass = 'priority-high';
+            if (ticket.priority === 'Critical') priorityClass = 'priority-critical';
+
+            // Status badge
+            let statusBadge = '';
+            if (ticket.status === 'Open') statusBadge = 'status-open';
+            if (ticket.status === 'In Progress') statusBadge = 'status-in-progress';
+            if (ticket.status === 'Resolved') statusBadge = 'status-resolved';
+            if (ticket.status === 'Closed') statusBadge = 'status-closed';
+
+            // Truncate text function
+            const truncateText = (text, maxLength = 15) => {
+                if (!text) return 'N/A';
+                return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+            };
+
+            // Prepare truncated values
+            const empName = truncateText(ticket.emp_name || ticket.employeeName);
+            const empId = truncateText(ticket.emp_id || ticket.employeeId);
+            const department = truncateText(ticket.department);
+            const issueType = truncateText(ticket.issue_type || ticket.issueType);
+
+            row.innerHTML = `
+                <td>${ticket.ticket_id || ticket.id}</td>
+                <td class="truncate" title="${ticket.emp_name || ticket.employeeName || 'N/A'}\n${ticket.emp_id || ticket.employeeId || 'N/A'}">
+                    ${empName}<br><small>${empId}</small>
+                </td>
+                <td class="truncate" title="${ticket.department || 'N/A'}">${department}</td>
+                <td class="truncate" title="${ticket.issue_type || ticket.issueType || 'N/A'}">${issueType}</td>
+                <td class="${priorityClass}">${ticket.priority}</td>
+                <td><span class="status-badge ${statusBadge}">${ticket.status}</span></td>
+                <td>${formattedDate}</td>
+                <td>
+                    <button class="action-btn btn-view" onclick="viewTicket('${ticket.ticket_id || ticket.id}')" title="View">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </td>
+            `;
+
+            ticketsBody.appendChild(row);
+        });
+    } catch (error) {
+        console.error('Error fetching tickets:', error);
+        const ticketsBody = document.getElementById('ticketsBody');
+        if (ticketsBody) {
+            ticketsBody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 2rem; color: var(--danger);">Error loading tickets</td></tr>';
+        }
+    }
+}       
+        // View ticket details
         async function viewTicket(ticketId) {
             try {
                 const response = await fetch(`http://44.223.23.145:3426/api/tickets/${ticketId}`);
@@ -729,10 +753,12 @@
                 
                 const ticket = await response.json();
                 currentTicketId = ticket.ticket_id || ticket.id;
-
-                const createdDate = new Date(ticket.created_at || ticket.createdAt || Date.now());
+                
+                // Format date
+                const createdDate = new Date(ticket.created_at || ticket.createdAt);
                 const formattedDate = createdDate.toLocaleDateString() + ' ' + createdDate.toLocaleTimeString();
                 
+                // Set modal content safely
                 const setModalContent = (id, value) => {
                     const el = document.getElementById(id);
                     if (el) el.textContent = value || 'N/A';
@@ -756,6 +782,53 @@
             }
         }
         
+        // Resolve ticket
+        async function resolveTicket(ticketId) {
+            if (confirm('Mark this ticket as resolved?')) {
+                try {
+                    const response = await fetch(`http://44.223.23.145:3426/api/tickets/${ticketId}/status`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ status: 'Resolved' })
+                    });
+                    
+                    if (!response.ok) throw new Error('Failed to update ticket');
+                    
+                    await renderTickets();
+                    alert('Ticket marked as resolved');
+                } catch (error) {
+                    console.error('Error resolving ticket:', error);
+                    alert('Error resolving ticket');
+                }
+            }
+        }
+        
+        // Close ticket
+        async function closeTicket(ticketId) {
+            if (confirm('Close this ticket?')) {
+                try {
+                    const response = await fetch(`http://44.223.23.145:3426/api/tickets/${ticketId}/status`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ status: 'Closed' })
+                    });
+                    
+                    if (!response.ok) throw new Error('Failed to update ticket');
+                    
+                    await renderTickets();
+                    alert('Ticket closed');
+                } catch (error) {
+                    console.error('Error closing ticket:', error);
+                    alert('Error closing ticket');
+                }
+            }
+        }
+        
+        // Update ticket status from modal
         async function updateStatus(newStatus) {
             if (!currentTicketId) return;
             
@@ -779,6 +852,7 @@
             }
         }
         
+        // Add comment to ticket
         async function addComment() {
             if (!currentTicketId) return;
             
@@ -806,6 +880,7 @@
             }
         }
         
+        // Close modal
         function closeModal() {
             const modal = document.getElementById('ticketModal');
             if (modal) modal.classList.remove('active');
