@@ -36,11 +36,11 @@ pool.connect((err, client, release) => {
 app.use(cors({
     origin: (origin, callback) => {
         const allowedOrigins = [
-            'http://13.61.8.239:5500',
+            'http://13.60.42.35:5500',
             'http://127.0.0.1:5500',
-            'http://13.61.8.239:3426',
-            'http://13.61.8.239:8049',
-            'http://13.61.8.239:8050',
+            'http://13.60.42.35:3426',
+            'http://13.60.42.35:8049',
+            'http://13.60.42.35:8050',
         ];
 
         console.log('CORS request from origin:', origin);
